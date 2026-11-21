@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEB3 // ALGO &amp; SOLIDITY LAB</title>
+    <style>
+        :root {
+            --bg: #05070e;
+            --bg-grid: rgba(0, 240, 255, 0.04);
+            --surface: rgba(13, 18, 34, 0.85);
+            --surface-solid: #0d1222;
+            --surface-alt: #080c17;
+            --border: rgba(0, 240, 255, 0.22);
+            --border-strong: rgba(168, 85, 247, 0.45);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --cyan: #00f0ff;
+            --purple: #a855f7;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --red: #f43f5e;
+            --code-bg: #03050a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.14), transparent 35%),
+                radial-gradient(circle at 85% 20%, rgba(0, 240, 255, 0.12), transparent 35%),
+                linear-gradient(var(--bg-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+            color: var(--text);
+            line-height: 1.65;
+            min-height: 100vh;
+        }
+        header {
+            background: rgba(8, 12, 23, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.95rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+        }
+        .brand {
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #fff;
+        }
+        .brand-hex {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #05070e;
+            font-weight: 900;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
+        }
+        .brand span {
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center; }
+        select, input, textarea {
+            background: var(--surface-alt);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.55rem 0.85rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
+        }
+        textarea.code-input {
+            font-family: "Fira Code", Consolas, "Courier New", monospace;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            background: var(--code-bg);
+            color: #a5f3fc;
+            border-color: rgba(168, 85, 247, 0.35);
+        }
+        button {
+            background: linear-gradient(135deg, #0284c7, #7c3aed);
+            color: #fff;
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            padding: 0.55rem 1.1rem;
+            border-radius: 0.5rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+        }
+        button:hover {
+            filter: brightness(1.12);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        button.secondary {
+            background: rgba(30, 41, 59, 0.75);
+            border: 1px solid var(--border);
+            color: #e2e8f0;
+        }
+        button.secondary:hover {
+            border-color: var(--cyan);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        button.success {
+            background: linear-gradient(135deg, #059669, #0d9488);
+            border-color: rgba(16, 185, 129, 0.5);
+            color: #ecfdf5;
+        }
+        button.success:hover {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+        button.small { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+
+        .container { max-width: 1180px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        .node-panel {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0.85rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+        }
+        .node-info { display: flex; flex-direction: column; gap: 0.2rem; }
+        .node-label {
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--cyan);
+        }
+        .progress-track {
+            flex: 1;
+            min-width: 220px;
+            background: var(--code-bg);
+            height: 12px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--purple), var(--emerald));
+            width: 0%;
+            transition: width 0.35s ease;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+        }
+        .sync-badge {
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .sync-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+        .sync-badge.offline {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+        .sync-badge.offline::before {
+            background: #f59e0b;
+            box-shadow: 0 0 8px #f59e0b;
+        }
+
+        /* Chain Blocks Navigation */
+        .chain-tabs {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            overflow-x: auto;
+            padding: 0.5rem 0 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .chain-link {
+            width: 18px;
+            height: 2px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            background: var(--surface);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.84rem;
+            padding: 0.55rem 1rem;
+            border-radius: 0.55rem;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.18), rgba(168, 85, 247, 0.25));
+            color: #fff;
+            border-color: var(--cyan);
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+        }
+        .tab-btn.done {
+            border-color: rgba(16, 185, 129, 0.55);
+            color: #6ee7b7;
+        }
+        .tab-btn.done::after {
+            content: " [OK]";
+            color: var(--emerald);
+            font-weight: 700;
+        }
+
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 0.85rem;
+            padding: 1.85rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
+            position: relative;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 1.5rem; right: 1.5rem;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+            opacity: 0.6;
+        }
+        .card h2 {
+            margin-bottom: 0.85rem;
+            color: #fff;
+            font-size: 1.45rem;
+            letter-spacing: -0.01em;
+        }
+        .card h3 {
+            margin-bottom: 0.65rem;
+            color: var(--cyan);
+            font-size: 1.12rem;
+            font-family: "Fira Code", Consolas, monospace;
+        }
+        .card h4 {
+            margin: 1.15rem 0 0.45rem;
+            color: #d8b4fe;
+            font-size: 1.02rem;
+        }
+
+        .analogy-box {
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.08), rgba(168, 85, 247, 0.08));
+            border-left: 3px solid var(--cyan);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.6rem 0.6rem 0;
+            margin: 1rem 0 1.5rem;
+        }
+        .warning-box {
+            background: rgba(244, 63, 94, 0.09);
+            border-left: 3px solid var(--red);
+            padding: 0.95rem 1.2rem;
+            border-radius: 0 0.6rem 0.6rem 0;
+            margin: 1rem 0;
+            font-size: 0.93rem;
+        }
+
+        .theory-section p { margin-bottom: 0.85rem; color: #e2e8f0; }
+        .theory-section ul, .theory-section ol { margin: 0.5rem 0 1rem 1.5rem; color: #e2e8f0; }
+        .theory-section li { margin-bottom: 0.45rem; }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.2rem;
+            border-radius: 0.6rem;
+            overflow-x: auto;
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.87rem;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            color: #e2e8f0;
+            margin: 0.75rem 0;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+        code {
+            background: rgba(0, 240, 255, 0.1);
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.3rem;
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.88em;
+            color: var(--cyan);
+        }
+        pre code { background: none; padding: 0; color: inherit; }
+
+        .task-box {
+            background: var(--surface-alt);
+            border: 1px solid rgba(0, 240, 255, 0.18);
+            border-radius: 0.65rem;
+            padding: 1.3rem;
+            margin-bottom: 1.25rem;
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.65rem;
+            flex-wrap: wrap;
+        }
+        .task-badge {
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.65rem;
+            border-radius: 0.35rem;
+            background: rgba(0, 240, 255, 0.14);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            font-weight: 700;
+        }
+        .task-badge.solidity {
+            background: rgba(168, 85, 247, 0.18);
+            color: #d8b4fe;
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+        .task-badge.audit {
+            background: rgba(244, 63, 94, 0.16);
+            color: #fda4af;
+            border-color: rgba(244, 63, 94, 0.4);
+        }
+        .hint-content {
+            display: none;
+            margin-top: 0.8rem;
+            padding: 0.9rem 1rem;
+            background: var(--code-bg);
+            border-radius: 0.45rem;
+            border: 1px dashed var(--purple);
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        .hint-content.open { display: block; }
+
+        .quiz-item {
+            background: var(--surface-alt);
+            padding: 1.15rem;
+            border-radius: 0.6rem;
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            margin-bottom: 0.9rem;
+        }
+        .quiz-item p { font-weight: 600; margin-bottom: 0.65rem; color: #f8fafc; }
+        .option-label {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.45rem;
+            cursor: pointer;
+            margin-bottom: 0.35rem;
+            border: 1px solid transparent;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .option-label:hover {
+            background: rgba(0, 240, 255, 0.06);
+            border-color: rgba(0, 240, 255, 0.2);
+        }
+        .option-label input { margin-right: 0.65rem; accent-color: var(--cyan); }
+
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(3, 5, 10, 0.82);
+            backdrop-filter: blur(6px);
+            display: none; align-items: center; justify-content: center; z-index: 200;
+            padding: 1rem;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal {
+            background: var(--surface-solid);
+            border: 1px solid var(--cyan);
+            border-radius: 0.85rem;
+            max-width: 500px;
+            width: 100%;
+            padding: 1.85rem;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.2);
+        }
+        .modal h3 { margin-bottom: 1rem; color: var(--cyan); font-family: "Fira Code", Consolas, monospace; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.88rem; color: var(--text-muted); }
+        .form-group input, .form-group textarea { width: 100%; }
+
+        .info-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+        .info-table th, .info-table td { padding: 0.7rem 0.9rem; text-align: left; border: 1px solid rgba(0, 240, 255, 0.18); }
+        .info-table th { background: var(--code-bg); color: var(--cyan); font-family: "Fira Code", Consolas, monospace; }
+        .info-table tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <div class="brand-hex">#</div>
+        <div><span>ALGO::SOLIDITY</span> // WEB3 LAB</div>
+    </div>
+    <div class="controls">
+        <select id="profileSelect" onchange="switchProfile(this.value)"></select>
+        <button class="secondary" onclick="openProfileModal()">+ Новый студент</button>
+        <button class="secondary" onclick="openConfigModal()">⚙️ Google Таблица</button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="node-panel">
+        <div class="node-info">
+            <span class="node-label">ACTIVE STUDENT NODE</span>
+            <strong id="studentTitle" style="font-size:1.05rem;">Студент не выбран</strong>
+            <div style="font-size: 0.85rem; color: var(--text-muted);" id="studentStats">Сдано блоков: 0 из 6 | Баллов: 0</div>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div id="syncStatus" class="sync-badge offline">OFFLINE // LOCAL STORAGE</div>
+    </div>
+
+    <div class="chain-tabs" id="dayTabs"></div>
+    <div id="dayContent"></div>
+</div>
+
+<!-- Модальное окно создания профиля -->
+<div class="modal-backdrop" id="profileModal">
+    <div class="modal">
+        <h3>&gt;_ Инициализация профиля</h3>
+        <div class="form-group">
+            <label>ФИО студента</label>
+            <input type="text" id="inputFio" placeholder="Например: Иванов Иван Иванович">
+        </div>
+        <div class="form-group">
+            <label>Учебная группа</label>
+            <input type="text" id="inputGroup" placeholder="Например: ИС 25/9-2">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button class="secondary" onclick="closeModal('profileModal')">Отмена</button>
+            <button onclick="createProfile()">Создать узел</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно настройки Google Apps Script -->
+<div class="modal-backdrop" id="configModal">
+    <div class="modal">
+        <h3>&gt;_ Подключение Google Таблицы</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Вставьте URL веб-приложения Google Apps Script, чтобы практические работы и баллы автоматически отправлялись в ведомость преподавателя. Для постоянной привязки впишите URL в константу <code>DEFAULT_WEBHOOK_URL</code> в коде файла.
+        </p>
+        <div class="form-group">
+            <label>URL веб-приложения (Apps Script Web App URL)</label>
+            <input type="url" id="inputWebhook" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <div style="display:flex; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+            <button class="secondary" onclick="syncCurrentNow()">Отправить отчет сейчас</button>
+            <div style="display:flex; gap:0.5rem;">
+                <button class="secondary" onclick="closeModal('configModal')">Закрыть</button>
+                <button onclick="saveWebhook()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ВСТАВЬТЕ СЮДА ССЫЛКУ НА ВАШ GOOGLE APPS SCRIPT ПЕРЕД ЗАГРУЗКОЙ НА GITHUB:
+const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyxyQ7NOizVHi3u3B-MTob6OE8sB9SmkwXUQNA3UxbGjCO177BG5CHXAnMy_x0d9C_u/exec";
+
+const COURSE_DATA = [
+  {
+    "day": 1,
+    "title": "День 1. Алгоритмическое мышление, память и строгая типизация",
+    "analogy": "Рецепт приготовления блюда, банковский сейф с ячейками разного размера и кассовый чек, в котором нельзя перепутать графу «Цена» с графой «Имя кассира».",
+    "theoryHtml": "\n            <h4>1.1. Что такое алгоритм и его 5 фундаментальных свойств</h4>\n            <p><strong>Алгоритм</strong> — это конечная совокупность точно заданных правил решения произвольного класса задач или набор инструкций, описывающих порядок действий исполнителя для решения некоторой задачи за конечное время.</p>\n            <p>Любой корректный алгоритм обязан обладать пятью свойствами:</p>\n            <ul>\n                <li><strong>Дискретность:</strong> процесс разбит на отдельные законченные шаги (инструкции). Нельзя выполнить «полшага».</li>\n                <li><strong>Детерминированность (определенность):</strong> каждое правило четко и однозначно. При одних и тех же входных данных алгоритм всегда дает один и тот же результат.</li>\n                <li><strong>Понятность:</strong> алгоритм составлен только из команд, входящих в систему команд конкретного исполнителя (например, виртуальной машины EVM).</li>\n                <li><strong>Конечность:</strong> выполнение должно завершиться за конечное число шагов, а не уйти в бесконечность.</li>\n                <li><strong>Массовость:</strong> алгоритм подходит для целого класса задач с разными входными данными (например, перевод любой суммы любому адресу).</li>\n            </ul>\n\n            <h4>1.2. Переменные, память и типы данных</h4>\n            <p>Чтобы алгоритм мог запоминать промежуточные результаты, ему нужна <strong>память</strong>. В программировании мы обращаемся к ячейкам памяти через <strong>переменные</strong>. У переменной есть три характеристики: <em>имя</em>, <em>тип данных</em> и <em>значение</em>.</p>\n            <p>В языке <strong>Solidity</strong> используется <strong>статическая строгая типизация</strong>. Поскольку запись в блокчейн стоит реальных денег (Gas), компилятор заранее должен знать, сколько байт выделить под каждую переменную:</p>\n            <table class=\"info-table\">\n                <thead>\n                    <tr><th>Тип в Solidity</th><th>Что хранит</th><th>Диапазон / Размер</th><th>Бытовой аналог</th></tr>\n                </thead>\n                <tbody>\n                    <tr><td><code>uint256</code></td><td>Целое число без знака (&ge; 0)</td><td>От 0 до 2<sup>256</sup> - 1 (32 байта)</td><td>Счетчик километража, баланс в копейках (wei)</td></tr>\n                    <tr><td><code>int256</code></td><td>Целое число со знаком</td><td>От -2<sup>255</sup> до 2<sup>255</sup> - 1</td><td>Температура воздуха зимой, прибыль/убыток</td></tr>\n                    <tr><td><code>bool</code></td><td>Логическое значение</td><td><code>true</code> или <code>false</code> (1 байт)</td><td>Выключатель света (вкл / выкл)</td></tr>\n                    <tr><td><code>address</code></td><td>Адрес кошелька или контракта</td><td>20 байт (формат <code>0x...</code>)</td><td>Номер банковского счета / IBAN</td></tr>\n                    <tr><td><code>string</code></td><td>Произвольный текст (UTF-8)</td><td>Динамический размер (дорогой по Gas!)</td><td>Записка или назначение платежа</td></tr>\n                </tbody>\n            </table>\n\n            <h4>1.3. Базовая арифметика и целочисленное деление</h4>\n            <p>В Solidity <strong>нет дробных чисел (float/double)</strong>! Все расчеты идут в целых числах. При делении <code>7 / 2</code> результатом будет <code>3</code> (дробная часть отбрасывается). Поэтому в блокчейне суммы хранят в минимальных единицах: 1 ETH = <code>10<sup>18</sup> wei</code> (как 1 рубль = 100 копеек).</p>\n        ",
+    "solidityTitle": "Разбор кода Solidity: Переменные состояния и арифметика",
+    "solidityCode": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract WarehouseAccount {\n    // Переменные состояния (State Variables) — записываются в блокчейн навсегда\n    address public manager;\n    string public warehouseTitle = \"Central Hub\";\n    uint256 public totalBoxes = 100;\n    bool public isOpen = true;\n\n    constructor() {\n        // msg.sender — адрес того, кто развернул контракт\n        manager = msg.sender;\n    }\n\n    // Линейный алгоритм: принять партию коробок и посчитать паллеты (по 12 шт.)\n    function receiveShipment(uint256 newBoxes) public returns (uint256 fullPallets, uint256 remainder) {\n        totalBoxes = totalBoxes + newBoxes;\n        fullPallets = totalBoxes / 12;   // Целочисленное деление\n        remainder = totalBoxes % 12;     // Остаток от деления (оператор %)\n    }\n}",
+    "tasks": [
+      {
+        "id": "t1",
+        "badge": "Задание 1 • Алгоритмизация",
+        "title": "Проектирование детерминированного бытового алгоритма",
+        "desc": "Составьте пошаговый алгоритм (псевдокод) работы банкомата при выдаче наличных. Учтите: ввод ПИН-кода, проверку баланса, проверку наличия купюр в кассете банкомата и раскладку суммы купюрами номиналом 5000, 1000 и 100 рублей (целочисленное деление и остаток). Минимум 8 четких шагов.",
+        "hint": "Используйте операции целочисленного деления (/) и остатка (%): например, count5000 = sum / 5000; sum = sum % 5000; и так далее для 1000 и 100.",
+        "placeholder": "Шаг 1: Запросить карту...\nШаг 2: ...",
+        "rows": 6,
+        "isCode": false
+      },
+      {
+        "id": "t2",
+        "badge": "Задание 2 • Практика Solidity",
+        "title": "Написание линейного смарт-контракта «Калькулятор чаевых и чека»",
+        "desc": "Напишите смарт-контракт BillSplitter на Solidity. Объявите переменные состояния: totalAmount (uint256), peopleCount (uint256), tipPercent (uint256) и isPaid (bool). Напишите функцию calculateShare(uint256 _amount, uint256 _people, uint256 _tipPercent), которая сохраняет значения в переменные состояния, вычисляет итоговую сумму с чаевыми и возвращает долю на одного человека (в целых числах).",
+        "hint": "Формула чаевых в целых числах (сначала умножаем, потом делим, чтобы не потерять точность!): uint256 totalWithTip = _amount + (_amount * _tipPercent) / 100; uint256 perPerson = totalWithTip / _people;",
+        "placeholder": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract BillSplitter {\n    // Ваш код здесь...\n}",
+        "rows": 10,
+        "isCode": true
+      },
+      {
+        "id": "t3",
+        "badge": "Задание 3 • Поиск логической ошибки",
+        "title": "Почему в блокчейне нельзя писать (_amount / 100) * 15?",
+        "desc": "Студент написал формулу расчета 15% комиссии: fee = (amount / 100) * 15. Объясните своими словами, что вернет эта формула при amount = 80 wei и как правильно переписать выражение в Solidity.",
+        "hint": "При целочисленном делении 80 / 100 даст 0. Умножение 0 на 15 даст 0 вместо положенных 12.",
+        "placeholder": "При amount = 80 выражение (80 / 100) вычислится как...",
+        "rows": 4,
+        "isCode": false
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Чему будет равна переменная x после выполнения uint256 x = 19 / 5; в Solidity?",
+        "options": [
+          "3.8",
+          "3",
+          "4"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Какое свойство алгоритма нарушено, если в инструкции написано: «Возьмите немного соли по вкусу и варите до готовности»?",
+        "options": [
+          "Массовость",
+          "Детерминированность (однозначность)",
+          "Дискретность"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Почему для денежных расчетов в Solidity сумму 1.5 ETH передают как 1500000000000000000?",
+        "options": [
+          "Потому что в Solidity нет дробных типов данных (float/double)",
+          "Потому что числа меньше миллиона запрещены компилятором",
+          "Для ускорения майнинга"
+        ],
+        "correct": 0
+      }
+    ]
+  },
+  {
+    "day": 2,
+    "title": "День 2. Ветвление, булева алгебра и защитные проверки",
+    "analogy": "Система контроля доступа на режимном объекте: пропуск валиден И уровень допуска >= 3 ИЛИ есть временное разрешение от начальника охраны.",
+    "theoryHtml": "\n            <h4>2.1. Операторы сравнения и логические связки (Булева алгебра)</h4>\n            <p>Ветвление управляет потоком выполнения программы на основе логических выражений, которые всегда сводятся к <code>true</code> (истина) или <code>false</code> (ложь).</p>\n            <ul>\n                <li><strong>Операторы сравнения:</strong> <code>==</code> (равно — не путать с присваиванием <code>=</code>!), <code>!=</code> (не равно), <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>.</li>\n                <li><strong>Логическое И (<code>&&</code>):</strong> истинно <em>только</em> когда оба условия истинны.</li>\n                <li><strong>Логическое ИЛИ (<code>||</code>):</strong> истинно, если хотя бы одно из условий истинно.</li>\n                <li><strong>Логическое НЕ (<code>!</code>):</strong> инвертирует значение (<code>!true == false</code>).</li>\n            </ul>\n            <div class=\"warning-box\">\n                <strong>Важно о приоритете:</strong> Операция <code>&&</code> имеет более высокий приоритет, чем <code>||</code> (как умножение перед сложением). Всегда используйте круглые скобки <code>(...)</code> в сложных условиях, чтобы избежать критических уязвимостей в правах доступа!\n            </div>\n\n            <h4>2.2. Ветвление в Solidity: <code>if / else</code> против <code>require()</code></h4>\n            <p>В обычных языках программирования мы пишем <code>if (ошибка) { return; }</code>. В смарт-контрактах этого недостаточно: если функция уже успела изменить какую-то переменную до проверки, обычный <code>return</code> сохранит эти половинчатые изменения!</p>\n            <p>Поэтому в Solidity используется паттерн <strong>Checks-Effects-Interactions</strong> и функция <code>require(условие, \"Текст ошибки\")</code>. Если условие в <code>require</code> ложно, виртуальная машина делает <strong>Revert (полный откат состояния)</strong>: все изменения отменяются, как будто транзакции не было.</p>\n        ",
+    "solidityTitle": "Разбор кода Solidity: Ветвление, роли и require()",
+    "solidityCode": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract GrantVault {\n    address public admin;\n    uint256 public vaultBalance = 1000;\n    bool public emergencyStop = false;\n\n    constructor() {\n        admin = msg.sender;\n    }\n\n    function requestGrant(uint256 amount, uint8 studentGrade) public returns (string memory) {\n        // 1. CHECKS (Жесткие проверки до изменения данных)\n        require(!emergencyStop, \"Контракт на паузе\");\n        require(amount > 0 && amount <= vaultBalance, \"Некорректная сумма\");\n        require(msg.sender == admin || studentGrade >= 4, \"Нет прав на грант\");\n\n        // 2. EFFECTS (Ветвление бизнес-логики и изменение состояния)\n        if (studentGrade == 5) {\n            uint256 bonus = amount + 50;\n            if (bonus <= vaultBalance) {\n                vaultBalance -= bonus;\n                return \"Выдан грант с повышенным бонусом!\";\n            }\n        }\n        \n        vaultBalance -= amount;\n        return \"Выдан стандартный грант\";\n    }\n}",
+    "tasks": [
+      {
+        "id": "t1",
+        "badge": "Задание 1 • Логика и таблицы истинности",
+        "title": "Анализ сложного условия доступа",
+        "desc": "Дано условие: (isAdmin || (isVerified && balance >= 500)) && !isBanned.\nОпределите результат (true или false) для трех пользователей и подробно распишите ход вычисления по шагам:\n1) isAdmin = false, isVerified = true, balance = 500, isBanned = false\n2) isAdmin = true, isVerified = false, balance = 0, isBanned = true\n3) isAdmin = false, isVerified = true, balance = 499, isBanned = false",
+        "hint": "Сначала вычисляйте выражения в самых внутренних скобках, затем отрицание !isBanned, затем итоговое &&.",
+        "placeholder": "Пользователь 1:\n1. balance >= 500 -> ...\n2. isVerified && ... -> ...\nИтог: ...",
+        "rows": 7,
+        "isCode": false
+      },
+      {
+        "id": "t2",
+        "badge": "Задание 2 • Практика Solidity",
+        "title": "Реализация смарт-контракта «Электронный турникет / Покупка билета»",
+        "desc": "Напишите контракт TicketOffice. Переменные состояния: owner (address), ticketPrice (uint256 = 100), ticketsLeft (uint256 = 50), salesActive (bool = true). Напишите функцию buyTicket(uint256 quantity, uint256 userMoney, bool isStudent). Правила:\n1) Продажи должны быть активны (require), количество > 0 и <= ticketsLeft.\n2) Если isStudent == true, действует скидка 20% на общую стоимость.\n3) Проверить через require, что userMoney >= итоговой цены.\n4) Уменьшить ticketsLeft и вернуть сдачу (userMoney - finalPrice).",
+        "hint": "При скидке 20% студент платит 80% стоимости: uint256 total = quantity * ticketPrice; if (isStudent) { total = (total * 80) / 100; }",
+        "placeholder": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract TicketOffice {\n    // Ваш код здесь...\n}",
+        "rows": 12,
+        "isCode": true
+      },
+      {
+        "id": "t3",
+        "badge": "Задание 3 • Аудит уязвимости",
+        "title": "Найдите баг в проверке прав",
+        "desc": "Разработчик написал проверку: require(msg.sender == owner || msg.sender == moderator && !isPaused, \"Access denied\");\nПочему owner сможет вызвать функцию даже тогда, когда контракт поставлен на паузу (isPaused == true), хотя по ТЗ пауза должна блокировать ВСЕХ? Как исправить эту строку?",
+        "hint": "Из-за приоритета && над || выражение читается как: (msg.sender == owner) || (msg.sender == moderator && !isPaused). Нужны скобки!",
+        "placeholder": "Ошибка возникла из-за приоритета операторов...\nИсправленный вариант: require(...);",
+        "rows": 4,
+        "isCode": false
+      }
+    ],
+    "quiz": [
+      {
+        "q": "В чем главное отличие require(cond) от конструкции if (!cond) { return; } в Solidity?",
+        "options": [
+          "require() откатывает все предыдущие изменения переменных в текущей транзакции, а return сохраняет их",
+          "if/else не поддерживается в версиях Solidity старше 0.8.0",
+          "require() работает только с числами"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Какой оператор имеет более высокий приоритет при вычислении без скобок?",
+        "options": [
+          "Логическое ИЛИ (||)",
+          "Логическое И (&&)",
+          "У них одинаковый приоритет"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Что вернет выражение !(10 > 5 && 3 == 4)?",
+        "options": [
+          "true",
+          "false",
+          "Ошибку компиляции"
+        ],
+        "correct": 0
+      }
+    ]
+  },
+  {
+    "day": 3,
+    "title": "День 3. Циклы, итерации и экономика Gas в EVM",
+    "analogy": "Конвейер на заводе с платным электричеством: каждая деталь на ленте требует киловатт энергии. Если лента бесконечная — на подстанции выбьет пробки.",
+    "theoryHtml": "\n            <h4>3.1. Виды циклов и анатомия итерации</h4>\n            <p><strong>Цикл</strong> — управляющая конструкция для многократного выполнения блока кода (тела цикла). Один проход тела цикла называется <strong>итерацией</strong>.</p>\n            <ul>\n                <li><strong>Цикл <code>for</code> (со счетчиком):</strong> используется, когда заранее известно число повторений. Состоит из трех частей: <code>for (инициализация; условие_продолжения; шаг)</code>.</li>\n                <li><strong>Цикл <code>while</code> (с предусловием):</strong> выполняется, пока условие истинно. Если условие ложно с самого начала, тело не выполнится ни разу.</li>\n                <li><strong>Операторы управления:</strong> <code>break</code> — экстренный выход из цикла; <code>continue</code> — досрочный переход к следующей итерации.</li>\n            </ul>\n\n            <h4>3.2. Специфика циклов в Solidity: Gas Limit и DoS-атаки</h4>\n            <p>В Ethereum каждый блок имеет максимальный потолок газа (Block Gas Limit). Каждая итерация цикла сжигает Gas (особенно если внутри читаются или перезаписываются переменные из <code>storage</code>).</p>\n            <div class=\"warning-box\">\n                <strong>Критическая уязвимость «Denial of Service (DoS) with Block Gas Limit»:</strong> Если смарт-контракт в цикле перебирает массив всех пользователей для рассылки наград, то при росте числа пользователей до нескольких тысяч стоимость одной транзакции превысит лимит газа блока. Функция <strong>навсегда перестанет работать</strong>, и деньги застрянут в контракте!\n            </div>\n            <p><strong>Правило хорошего тона в Solidity:</strong> никогда не делайте циклы по массивам неограниченной длины; всегда ограничивайте количество итераций или используйте паттерн <em>Pull over Push</em> (пусть каждый пользователь сам забирает свою выплату).</p>\n        ",
+    "solidityTitle": "Разбор кода Solidity: Циклы for, while, break и оптимизация",
+    "solidityCode": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract LoopAlgorithms {\n    // 1. Поиск первого числа, кратного 7, в диапазоне [start, end]\n    function findFirstMultipleOf7(uint256 start, uint256 end) public pure returns (uint256) {\n        require(end >= start && (end - start) <= 200, \"Диапазон слишком велик для Gas\");\n        \n        for (uint256 i = start; i <= end; i++) {\n            if (i % 7 == 0) {\n                return i; // Нашли — сразу выходим из цикла и функции!\n            }\n        }\n        return 0; // Не найдено\n    }\n\n    // 2. Цикл while: подсчет количества цифр в числе (например, 4590 -> 4 цифры)\n    function countDigits(uint256 number) public pure returns (uint256) {\n        if (number == 0) return 1;\n        uint256 digits = 0;\n        while (number > 0) {\n            number = number / 10;\n            digits++;\n        }\n        return digits;\n    }\n}",
+    "tasks": [
+      {
+        "id": "t1",
+        "badge": "Задание 1 • Трассировка алгоритма",
+        "title": "Ручная трассировка цикла (таблица значений)",
+        "desc": "Выполните трассировку следующего фрагмента кода и запишите значения переменных i и acc на каждом шаге (итерации):\nuint256 acc = 1;\nfor (uint256 i = 1; i <= 6; i++) {\n    if (i % 2 == 0) continue;\n    if (acc > 10) break;\n    acc = acc * i;\n}\nЧему в итоге будут равны acc и i после завершения цикла?",
+        "hint": "Обратите внимание на оператор continue: при четных i (2, 4, 6) умножение пропускается, но i++ все равно срабатывает!",
+        "placeholder": "Итерация 1 (i = 1): acc = ...\nИтерация 2 (i = 2): ...\nИтог: acc = ..., i = ...",
+        "rows": 7,
+        "isCode": false
+      },
+      {
+        "id": "t2",
+        "badge": "Задание 2 • Практика Solidity",
+        "title": "Алгоритм вычисления факториала и суммы четных чисел",
+        "desc": "Напишите контракт MathLoops с двумя функциями:\n1) sumEvenNumbers(uint256 n) — считает сумму всех четных чисел от 1 до n включительно. Добавьте защиту require(n <= 500), чтобы избежать перерасхода газа.\n2) factorial(uint256 k) — вычисляет k! (1 * 2 * ... * k) с помощью цикла for или while. Учтите, что 0! = 1, а при k > 20 произойдет переполнение uint256 (поставьте require(k <= 20)).",
+        "hint": "В функции sumEvenNumbers можно идти с шагом i += 2, начиная с i = 2 — это сократит расход Gas ровно в 2 раза!",
+        "placeholder": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract MathLoops {\n    // Ваш код здесь...\n}",
+        "rows": 12,
+        "isCode": true
+      },
+      {
+        "id": "t3",
+        "badge": "Задание 3 • Архитектура и Gas",
+        "title": "Решение проблемы «Дорогой рассылки» (Pull vs Push)",
+        "desc": "В смарт-контракте лотереи 5000 победителей. Почему плохая идея делать функцию distributeAll(), которая в цикле for переводит приз каждому из 5000 адресов? Опишите, как перестроить алгоритм так, чтобы обойтись вообще без цикла.",
+        "hint": "Вместо того чтобы контракт сам рассылал деньги всем (Push), запишите выигрыши в таблицу балансов и сделайте функцию claimPrize(), которую каждый победитель вызовет сам для себя (Pull).",
+        "placeholder": "Проблема функции distributeAll() заключается в том, что...\nЧтобы избавиться от цикла, нужно...",
+        "rows": 5,
+        "isCode": false
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Что делает оператор continue внутри цикла for?",
+        "options": [
+          "Полностью прерывает цикл и переходит к коду после цикла",
+          "Пропускает оставшуюся часть текущей итерации и переходит к следующему шагу цикла",
+          "Перезапускает цикл с самого первого значения счетчика"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Какая уязвимость возникает при использовании цикла по динамическому массиву всех пользователей в смарт-контракте?",
+        "options": [
+          "DoS (отказ в обслуживании) из-за превышения лимита Gas блока",
+          "Утечка приватных ключей пользователей",
+          "Компилятор автоматически удалит массив"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Сколько раз выполнится тело цикла: uint x = 10; while (x < 10) { x++; }?",
+        "options": [
+          "0 раз",
+          "1 раз",
+          "10 раз"
+        ],
+        "correct": 0
+      }
+    ]
+  },
+  {
+    "day": 4,
+    "title": "День 4. Структуры данных: Массивы, Struct и Mapping",
+    "analogy": "Массив — это нумерованные полки на складе (0, 1, 2...), где чтобы найти нужный товар, нужно пройтись вдоль стеллажа. Mapping — это автоматизированный терминал: вводишь штрих-код (ключ) и робот за O(1) достает нужную ячейку.",
+    "theoryHtml": "\n            <h4>4.1. Сложность поиска: O(n) против O(1)</h4>\n            <p>Выбор структуры данных определяет скорость работы алгоритма:</p>\n            <ul>\n                <li><strong>Динамический массив (<code>uint256[]</code>):</strong> упорядоченный список элементов. Индексация всегда начинается с <strong>0</strong>. Доступ по известному индексу (<code>arr[3]</code>) мгновенный — <code>O(1)</code>, но поиск значения в неотсортированном массиве требует перебора всех <code>n</code> элементов — <code>O(n)</code>.</li>\n                <li><strong>Хеш-таблица / Словарь (<code>mapping(Key => Value)</code>):</strong> структура «ключ → значение». Под капотом использует криптографический хеш (Keccak-256) от ключа для вычисления адреса ячейки в памяти. Поиск по ключу всегда занимает <code>O(1)</code> — одинаково быстро хоть для 10, хоть для 10 миллионов записей!</li>\n                <li><strong>Пользовательские структуры (<code>struct</code>):</strong> позволяют объединить несколько разнотипных полей в одну сущность (например, карточку студента: имя, балл, статус зачета).</li>\n            </ul>\n\n            <h4>4.2. Особенности mapping и областей памяти (storage vs memory)</h4>\n            <ul>\n                <li>В <code>mapping</code> невозможно узнать его длину или перебрать все ключи в цикле. Если нужен список всех ключей, рядом заводят вспомогательный массив.</li>\n                <li>Если ключа нет в <code>mapping</code>, Solidity не выдает ошибку — он возвращает значение по умолчанию (<code>0</code> для чисел, <code>false</code> для bool, <code>\"\"</code> для строк).</li>\n                <li><strong>Storage vs Memory:</strong> <code>storage</code> — постоянная память блокчейна (жесткий диск), <code>memory</code> — временная оперативная память на время вызова функции.</li>\n            </ul>\n        ",
+    "solidityTitle": "Разбор кода Solidity: Struct, Array и Mapping в связке",
+    "solidityCode": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract CourseRegistry {\n    struct Student {\n        string fullName;\n        uint256 score;\n        bool isEnrolled;\n    }\n\n    // Словарь: адрес кошелька -> карточка студента (поиск за O(1))\n    mapping(address => Student) public students;\n    // Массив всех зарегистрированных адресов (чтобы знать список участников)\n    address[] public studentList;\n\n    function register(string memory _name) public {\n        require(!students[msg.sender].isEnrolled, \"Уже зарегистрирован\");\n        \n        students[msg.sender] = Student({\n            fullName: _name,\n            score: 0,\n            isEnrolled: true\n        });\n        studentList.push(msg.sender); // Добавляем в конец массива\n    }\n\n    function getTotalStudents() public view returns (uint256) {\n        return studentList.length;\n    }\n}",
+    "tasks": [
+      {
+        "id": "t1",
+        "badge": "Задание 1 • Алгоритмы на массивах",
+        "title": "Алгоритм поиска максимума и среднего значения",
+        "desc": "Дан массив оценок: [4, 5, 3, 5, 2, 4, 5]. Опишите пошаговый алгоритм (или напишите функцию на Solidity), который за один проход (один цикл) находит:\n1) максимальную оценку в массиве,\n2) количество пятерок,\n3) среднее арифметическое (целую часть).\nПодумайте, что произойдет, если передать пустой массив длины 0, и как защититься от деления на ноль.",
+        "hint": "Перед циклом проверьте require(grades.length > 0). В начале возьмите max = grades[0], а цикл запустите с i = 1.",
+        "placeholder": "// Можно написать на Solidity или подробным псевдокодом:\nfunction analyzeGrades(uint256[] memory grades) public pure returns (...) {\n    ...\n}",
+        "rows": 9,
+        "isCode": true
+      },
+      {
+        "id": "t2",
+        "badge": "Задание 2 • Практика Solidity",
+        "title": "Смарт-контракт «Система голосования за кандидатов»",
+        "desc": "Создайте контракт VotingSystem:\n1) Объявите структуру Candidate { string name; uint256 voteCount; }.\n2) Создайте массив Candidate[] public candidates.\n3) Создайте mapping(address => bool) public hasVoted, чтобы один кошелек не мог проголосовать дважды.\n4) Напишите функцию addCandidate(string memory _name) и функцию vote(uint256 candidateIndex) с проверками: пользователь еще не голосовал и индекс кандидата существует (candidateIndex < candidates.length).",
+        "hint": "Для добавления структуры в массив используйте: candidates.push(Candidate(_name, 0)); А при голосовании: candidates[candidateIndex].voteCount += 1;",
+        "placeholder": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract VotingSystem {\n    // Ваш код здесь...\n}",
+        "rows": 13,
+        "isCode": true
+      },
+      {
+        "id": "t3",
+        "badge": "Задание 3 • Проектирование данных",
+        "title": "Выбор структуры данных под задачу",
+        "desc": "Для каждой из 3 задач выберите оптимальную структуру в Solidity (массив, mapping или комбинация) и обоснуйте выбор:\n1) Мгновенная проверка, находится ли адрес кошелька в черном списке (blacklist).\n2) Хранение истории последних 10 транзакций для вывода на экран по порядку.\n3) Учет товаров на складе по артикулу (ID товара -> количество) с возможностью вывести список всех существующих артикулов.",
+        "hint": "Для 1-й задачи идеально подходит mapping(address => bool). Для 3-й — связка mapping + массив ключей.",
+        "placeholder": "1. Для черного списка лучше использовать..., потому что...\n2. ...\n3. ...",
+        "rows": 6,
+        "isCode": false
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Какова алгоритмическая сложность поиска значения по ключу в mapping в Solidity?",
+        "options": [
+          "O(n) — растет пропорционально количеству записей",
+          "O(1) — константное время независимо от размера",
+          "O(n^2) — квадратичная"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Что вернет обращение к несуществующему ключу в mapping(address => uint256)?",
+        "options": [
+          "Ошибку IndexOutOfBounds",
+          "Значение по умолчанию — 0",
+          "null / undefined"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Какой метод добавляет новый элемент в конец динамического storage-массива в Solidity?",
+        "options": [
+          "array.add(item)",
+          "array.push(item)",
+          "array.append(item)"
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  {
+    "day": 5,
+    "title": "День 5. Декомпозиция, функции, модификаторы и события",
+    "analogy": "Банковское отделение: клиент подходит к окошку операциониста (public-функция), операционист отправляет запрос в закрытое хранилище (private-функция), а система печатает квитанцию в архив (event).",
+    "theoryHtml": "\n            <h4>5.1. Принцип декомпозиции и чистые функции</h4>\n            <p><strong>Декомпозиция</strong> — разделение сложной задачи на набор небольших, логически завершенных подзадач (функций). Хорошая функция делает <em>одно</em> конкретное действие и имеет понятное название.</p>\n            <p>В Solidity у каждой функции настраиваются два важных аспекта:</p>\n            <table class=\"info-table\">\n                <thead>\n                    <tr><th>Модификатор видимости</th><th>Кто может вызвать функцию?</th></tr>\n                </thead>\n                <tbody>\n                    <tr><td><code>public</code></td><td>Любой пользователь снаружи и любые функции внутри контракта</td></tr>\n                    <tr><td><code>external</code></td><td>Только снаружи контракта (экономит Gas при передаче больших массивов)</td></tr>\n                    <tr><td><code>internal</code></td><td>Только сам контракт и его наследники</td></tr>\n                    <tr><td><code>private</code></td><td>Только сам контракт (даже наследники не имеют доступа)</td></tr>\n                </tbody>\n            </table>\n\n            <h4>5.2. Модификаторы состояния: <code>view</code>, <code>pure</code> и <code>payable</code></h4>\n            <ul>\n                <li><strong><code>view</code>:</strong> функция только <em>читает</em> переменные блокчейна, но не изменяет их. При внешнем вызове не тратит Gas!</li>\n                <li><strong><code>pure</code>:</strong> «чистая» функция, которая даже не читает переменные блокчейна — работает только со своими входными параметрами (например, математическая формула).</li>\n                <li><strong><code>payable</code>:</strong> разрешает функции принимать криптовалюту (ETH) вместе с вызовом.</li>\n            </ul>\n\n            <h4>5.3. Модификаторы доступа (<code>modifier</code>) и события (<code>event</code>)</h4>\n            <p>Чтобы не копировать <code>require(msg.sender == owner)</code> в 10 разных функций, используют <code>modifier</code> (обертку с символом <code>_;</code>, куда подставляется тело функции). А для уведомления фронтенда (JS/MetaMask) об успешной операции используют <code>emit EventName(...)</code>.</p>\n        ",
+    "solidityTitle": "Разбор кода Solidity: modifier, view/pure, internal и event",
+    "solidityCode": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract EscrowService {\n    address public arbiter;\n    uint256 public feePercent = 5;\n\n    // Событие для фронтенда (записывается в логи транзакции)\n    event PaymentReleased(address indexed recipient, uint256 netAmount);\n\n    constructor() {\n        arbiter = msg.sender;\n    }\n\n    // Пользовательский модификатор доступа\n    modifier onlyArbiter() {\n        require(msg.sender == arbiter, \"Только арбитр может выполнить действие\");\n        _; // Сюда подставляется код функции\n    }\n\n    // View-функция: чтение storage без траты Gas при внешнем вызове\n    function calculateFee(uint256 amount) public view returns (uint256) {\n        return (amount * feePercent) / 100;\n    }\n\n    // Публичная функция использует модификатор и внутренний метод\n    function releaseFunds(address recipient, uint256 grossAmount) public onlyArbiter {\n        uint256 net = _deductFee(grossAmount);\n        emit PaymentReleased(recipient, net);\n    }\n\n    // Внутренняя вспомогательная функция\n    function _deductFee(uint256 amount) private view returns (uint256) {\n        return amount - calculateFee(amount);\n    }\n}",
+    "tasks": [
+      {
+        "id": "t1",
+        "badge": "Задание 1 • Декомпозиция архитектуры",
+        "title": "Проектирование функций для смарт-контракта «Маркетплейс»",
+        "desc": "Вам нужно спроектировать смарт-контракт простого маркетплейса. Разбейте систему на 5 отдельных функций. Для каждой функции укажите:\n1) Название и входные параметры,\n2) Модификатор видимости (public / external / private),\n3) Модификатор состояния (обычная / view / pure / payable),\n4) Какие проверки (require) должны быть внутри.",
+        "hint": "Примеры функций: listItem (добавить товар), buyItem (payable — купить товар), getItemDetails (view — посмотреть товар), _calculatePlatformFee (private view — посчитать комиссию).",
+        "placeholder": "1. Функция listItem(string memory title, uint256 price) external:\n   - Проверка: price > 0\n   - Действие: ...\n2. ...",
+        "rows": 8,
+        "isCode": false
+      },
+      {
+        "id": "t2",
+        "badge": "Задание 2 • Практика Solidity",
+        "title": "Написание контракта с modifier, view и event",
+        "desc": "Напишите контракт AccessControlledStorage:\n1) Переменные: owner (address), storedData (uint256), isLocked (bool).\n2) Создайте модификатор onlyOwner и модификатор whenUnlocked (проверяет !isLocked).\n3) Создайте событие DataUpdated(address indexed by, uint256 oldValue, uint256 newValue).\n4) Напишите функцию setData(uint256 _newValue), защищенную обоими модификаторами, которая обновляет storedData и вызывает событие.\n5) Напишите view-функцию getData() и pure-функцию doubleValue(uint256 x).",
+        "hint": "Модификаторы можно навешивать цепочкой: function setData(uint256 _newValue) public onlyOwner whenUnlocked { ... }",
+        "placeholder": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract AccessControlledStorage {\n    // Ваш код здесь...\n}",
+        "rows": 13,
+        "isCode": true
+      },
+      {
+        "id": "t3",
+        "badge": "Задание 3 • Оптимизация и безопасность",
+        "title": "Зачем нужны события (events) и почему функция marked as view не тратит Gas?",
+        "desc": "Объясните своими словами: 1) Как веб-приложение на JavaScript (с MetaMask) узнает, что транзакция прошла и внутри контракта изменился баланс? 2) В каком случае view-функция все-таки будет расходовать Gas?",
+        "hint": "Когда view-функцию вызывает пользователь напрямую из браузера (eth_call), она выполняется бесплатно на локальной ноде. Но если её вызывает другая (платная) функция внутри контракта во время транзакции — Gas спишется.",
+        "placeholder": "1. Веб-приложение отслеживает события (events) через...\n2. View-функция расходует Gas в случае, если...",
+        "rows": 5,
+        "isCode": false
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Что означает символ _; внутри определения modifier в Solidity?",
+        "options": [
+          "Завершение работы контракта",
+          "Место, куда при компиляции подставляется тело самой функции",
+          "Обнуление всех локальных переменных"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Какой модификатор нужно указать функции, которая не читает и не изменяет переменные состояния контракта?",
+        "options": [
+          "view",
+          "pure",
+          "payable"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Для чего в смарт-контрактах объявляют и вызывают события (event / emit)?",
+        "options": [
+          "Для записи логов в блокчейн, чтобы внешние приложения (JS) могли отслеживать действия контракта",
+          "Для отправки электронного письма администратору",
+          "Для автоматического возврата комиссии за Gas"
+        ],
+        "correct": 0
+      }
+    ]
+  },
+  {
+    "day": 6,
+    "title": "День 6. Итоговый практикум: Сборка и аудит смарт-контракта",
+    "analogy": "Сдача экзамена по вождению в городе: нужно не только знать знаки (синтаксис), но и следить за безопасностью маневров (защита от атак и ошибок логики).",
+    "theoryHtml": "\n            <h4>6.1. Паттерн безопасности Checks-Effects-Interactions (CEI)</h4>\n            <p>При разработке финансовых смарт-контрактов порядок строк кода имеет критическое значение. Одна из самых известных атак в истории блокчейна (взлом The DAO на $60 млн) произошла из-за нарушения порядка шагов при выводе средств (атака <strong>Reentrancy — повторного входа</strong>).</p>\n            <p>Любая функция, работающая с балансами, должна строиться строго по 3 фазам:</p>\n            <ol>\n                <li><strong>Checks (Проверки):</strong> все <code>require(...)</code> — проверка прав, лимитов, баланса.</li>\n                <li><strong>Effects (Эффекты):</strong> изменение внутренних переменных контракта (списание баланса пользователя <em>до</em> отправки денег!).</li>\n                <li><strong>Interactions (Взаимодействия):</strong> отправка ETH или вызов других контрактов (<code>payable(msg.sender).transfer(...)</code> или <code>call</code>).</li>\n            </ol>\n\n            <h4>6.2. Чек-лист алгоритмического самоконтроля перед деплоем</h4>\n            <ul>\n                <li>Есть ли защита от нулевых значений и деления на ноль?</li>\n                <li>Соблюден ли порядок умножения перед делением в формулах?</li>\n                <li>Нет ли циклов по динамическим массивам без ограничения длины?</li>\n                <li>Обновлены ли балансы в <code>mapping</code> <em>до</em> перевода средств пользователю?</li>\n            </ul>\n        ",
+    "solidityTitle": "Эталонный итоговый контракт: Краудфандинг (Crowdfunding)",
+    "solidityCode": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract Crowdfunding {\n    address public creator;\n    uint256 public goal;\n    uint256 public totalRaised;\n    bool public claimed;\n\n    mapping(address => uint256) public pledges;\n\n    event Pledged(address indexed backer, uint256 amount);\n    event Claimed(address indexed creator, uint256 totalAmount);\n\n    constructor(uint256 _goal) {\n        require(_goal > 0, \"Цель должна быть больше 0\");\n        creator = msg.sender;\n        goal = _goal;\n    }\n\n    // Внести средства в проект\n    function pledge() public payable {\n        require(msg.value > 0, \"Нужно отправить больше 0 wei\");\n        pledges[msg.sender] += msg.value;\n        totalRaised += msg.value;\n        emit Pledged(msg.sender, msg.value);\n    }\n\n    // Забрать собранные средства (по паттерну Checks-Effects-Interactions)\n    function claimFunds() public {\n        // 1. CHECKS\n        require(msg.sender == creator, \"Только создатель проекта\");\n        require(totalRaised >= goal, \"Цель еще не достигнута\");\n        require(!claimed, \"Средства уже выведены\");\n\n        // 2. EFFECTS\n        claimed = true;\n        uint256 amountToSend = address(this).balance;\n\n        // 3. INTERACTIONS\n        (bool success, ) = payable(creator).call{value: amountToSend}(\"\");\n        require(success, \"Ошибка перевода ETH\");\n\n        emit Claimed(creator, amountToSend);\n    }\n}",
+    "tasks": [
+      {
+        "id": "t1",
+        "badge": "Задание 1 • Аудит уязвимого кода",
+        "title": "Найдите критические ошибки в чужом контракте",
+        "desc": "Внимательно изучите фрагмент кода вывода средств:\n\nfunction withdraw(uint256 amount) public {\n    require(balances[msg.sender] >= amount);\n    (bool ok, ) = payable(msg.sender).call{value: amount}(\"\");\n    balances[msg.sender] -= amount;\n}\n\nНайдите и опишите минимум 2 серьезные уязвимости в этих 4 строках (порядок действий и проверка результата call) и напишите исправленный безопасный вариант функции.",
+        "hint": "1) Баланс уменьшается ПОСЛЕ отправки ETH (уязвимость Reentrancy). 2) Переменная ok никак не проверяется через require(ok) — если перевод не пройдет, баланс все равно спишется!",
+        "placeholder": "Найденные ошибки:\n1. ...\n2. ...\n\nИсправленный код:\nfunction withdraw(uint256 amount) public {\n    ...\n}",
+        "rows": 9,
+        "isCode": true
+      },
+      {
+        "id": "t2",
+        "badge": "Задание 2 • Итоговый мини-проект",
+        "title": "Доработка контракта Crowdfunding: функция возврата средств (refund)",
+        "desc": "Допишите к контракту Crowdfunding из теории выше функцию refund(), которая позволит спонсору вернуть свой вклад, если сбор еще не достиг цели (!claimed && totalRaised < goal). Обязательно соблюдайте паттерн Checks-Effects-Interactions (обнулите pledges[msg.sender] ДО отправки ETH) и добавьте событие Refunded.",
+        "hint": "uint256 bal = pledges[msg.sender]; require(bal > 0); pledges[msg.sender] = 0; totalRaised -= bal; (bool ok, ) = payable(msg.sender).call{value: bal}(\"\"); require(ok);",
+        "placeholder": "event Refunded(address indexed backer, uint256 amount);\n\nfunction refund() public {\n    // Ваш код здесь...\n}",
+        "rows": 11,
+        "isCode": true
+      },
+      {
+        "id": "t3",
+        "badge": "Задание 3 • Рефлексия курса",
+        "title": "Связь алгоритмов с реальным миром",
+        "desc": "Приведите собственный пример из повседневной жизни или будущей профессии, где одновременно работают все изученные за неделю элементы: переменные, ветвление, цикл, словарь (mapping) и функция. Опишите его в 5–7 предложениях.",
+        "hint": "Например: работа кассы самообслуживания в супермаркете, система начисления стипендии в колледже или маршрутизация заказов в службе доставки.",
+        "placeholder": "Мой пример системы: ...",
+        "rows": 5,
+        "isCode": false
+      }
+    ],
+    "quiz": [
+      {
+        "q": "В каком правильном порядке строятся шаги согласно паттерну Checks-Effects-Interactions?",
+        "options": [
+          "Отправка ETH -> Изменение баланса -> Проверка require",
+          "Проверка require -> Изменение баланса -> Отправка ETH",
+          "Изменение баланса -> Отправка ETH -> Проверка require"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Какая уязвимость возникает, если списать баланс пользователя в mapping ПОСЛЕ отправки ему ETH?",
+        "options": [
+          "Reentrancy (атака повторного входа)",
+          "Переполнение стека компилятора",
+          "Потеря приватного ключа"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Зачем проверять bool success после вызова payable(to).call{value: amount}(\"\")?",
+        "options": [
+          "Чтобы убедиться, что перевод действительно прошел, и откатить изменения при ошибке",
+          "Без этой проверки код не скомпилируется",
+          "Чтобы вернуть пользователю потраченный Gas"
+        ],
+        "correct": 0
+      }
+    ]
+  }
+];
+
+let state = {
+    profiles: {},
+    currentId: null,
+    activeDay: 1,
+    webhookUrl: DEFAULT_WEBHOOK_URL
+};
+
+function loadState() {
+    const saved = localStorage.getItem("algo_solidity_state_v3");
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            state = { ...state, ...parsed };
+            if (!state.webhookUrl && DEFAULT_WEBHOOK_URL) {
+                state.webhookUrl = DEFAULT_WEBHOOK_URL;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    if (!state.currentId || !state.profiles[state.currentId]) {
+        const ids = Object.keys(state.profiles);
+        if (ids.length > 0) {
+            state.currentId = ids[0];
+        } else {
+            openProfileModal();
+        }
+    }
+}
+
+function saveState() {
+    localStorage.setItem("algo_solidity_state_v3", JSON.stringify(state));
+}
+
+function createProfile() {
+    const fio = document.getElementById("inputFio").value.trim();
+    const group = document.getElementById("inputGroup").value.trim();
+    if (!fio || !group) {
+        alert("Пожалуйста, введите ФИО и группу.");
+        return;
+    }
+    const id = "st_" + Date.now();
+    state.profiles[id] = {
+        id: id,
+        fio: fio,
+        group: group,
+        days: {}
+    };
+    state.currentId = id;
+    saveState();
+    closeModal("profileModal");
+    document.getElementById("inputFio").value = "";
+    document.getElementById("inputGroup").value = "";
+    renderAll();
+}
+
+function switchProfile(id) {
+    state.currentId = id;
+    saveState();
+    renderAll();
+}
+
+function openProfileModal() {
+    document.getElementById("profileModal").classList.add("open");
+}
+
+function openConfigModal() {
+    document.getElementById("inputWebhook").value = state.webhookUrl || "";
+    document.getElementById("configModal").classList.add("open");
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove("open");
+}
+
+function saveWebhook() {
+    state.webhookUrl = document.getElementById("inputWebhook").value.trim();
+    saveState();
+    closeModal("configModal");
+    renderHeader();
+}
+
+function toggleHint(taskId) {
+    const el = document.getElementById("hint_" + taskId);
+    if (el) el.classList.toggle("open");
+}
+
+function renderHeader() {
+    const select = document.getElementById("profileSelect");
+    select.innerHTML = "";
+    Object.values(state.profiles).forEach(function(p) {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.fio + " (" + p.group + ")";
+        if (p.id === state.currentId) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    const syncBadge = document.getElementById("syncStatus");
+    if (state.webhookUrl) {
+        syncBadge.textContent = "SYNCED // GOOGLE SHEETS";
+        syncBadge.classList.remove("offline");
+    } else {
+        syncBadge.textContent = "LOCAL NODE // NO WEBHOOK";
+        syncBadge.classList.add("offline");
+    }
+
+    const prof = state.profiles[state.currentId];
+    if (!prof) return;
+
+    let completedCount = 0;
+    let totalScore = 0;
+    let maxScore = 0;
+    COURSE_DATA.forEach(function(d) {
+        maxScore += d.quiz.length;
+        const dState = prof.days[d.day];
+        if (dState && dState.completed) completedCount++;
+        if (dState && typeof dState.score === "number") totalScore += dState.score;
+    });
+
+    document.getElementById("studentTitle").textContent = prof.fio + " // " + prof.group;
+    document.getElementById("studentStats").textContent =
+        "Сдано блоков: " + completedCount + " из " + COURSE_DATA.length +
+        " | Контрольные вопросы: " + totalScore + " из " + maxScore;
+    document.getElementById("progressFill").style.width =
+        Math.round((completedCount / COURSE_DATA.length) * 100) + "%";
+}
+
+function renderTabs() {
+    const tabsEl = document.getElementById("dayTabs");
+    tabsEl.innerHTML = "";
+    const prof = state.profiles[state.currentId];
+    COURSE_DATA.forEach(function(d, idx) {
+        if (idx > 0) {
+            const link = document.createElement("div");
+            link.className = "chain-link";
+            tabsEl.appendChild(link);
+        }
+        const btn = document.createElement("button");
+        const isDone = prof && prof.days[d.day] && prof.days[d.day].completed;
+        btn.className = "tab-btn" + (state.activeDay === d.day ? " active" : "") + (isDone ? " done" : "");
+        btn.textContent = "BLOCK #0" + d.day;
+        btn.onclick = function() {
+            state.activeDay = d.day;
+            saveState();
+            renderTabs();
+            renderDay();
+        };
+        tabsEl.appendChild(btn);
+    });
+}
+
+function renderDay() {
+    const container = document.getElementById("dayContent");
+    const prof = state.profiles[state.currentId];
+    if (!prof) {
+        container.innerHTML = '<div class="card"><p>Нажмите «+ Новый студент» вверху, чтобы инициализировать профиль и начать обучение.</p></div>';
+        return;
+    }
+
+    const dayObj = COURSE_DATA.find(function(d) { return d.day === state.activeDay; });
+    const dState = prof.days[dayObj.day] || { answers: {}, taskTexts: {}, completed: false, score: null };
+    const savedTasks = dState.taskTexts || {};
+
+    let tasksHtml = "";
+    dayObj.tasks.forEach(function(t) {
+        const badgeClass = t.badge.indexOf("Solidity") !== -1 ? "solidity" : (t.badge.indexOf("Аудит") !== -1 ? "audit" : "");
+        const areaClass = t.isCode ? "code-input" : "";
+        const val = savedTasks[t.id] || "";
+        tasksHtml +=
+            '<div class="task-box">' +
+                '<div class="task-header">' +
+                    '<div>' +
+                        '<span class="task-badge ' + badgeClass + '">' + t.badge + '</span>' +
+                        '<h4 style="margin-top:0.55rem; color:#fff;">' + t.title + '</h4>' +
+                    '</div>' +
+                    '<button type="button" class="secondary small" onclick="toggleHint(\'' + t.id + '\')">💡 Подсказка</button>' +
+                '</div>' +
+                '<p style="white-space: pre-line; margin-bottom:0.85rem; color:#cbd5e1; font-size:0.94rem;">' + escapeHtml(t.desc) + '</p>' +
+                '<textarea id="task_' + dayObj.day + '_' + t.id + '" class="' + areaClass + '" rows="' + t.rows + '" style="width:100%;" placeholder="' + escapeHtml(t.placeholder) + '">' + escapeHtml(val) + '</textarea>' +
+                '<div id="hint_' + t.id + '" class="hint-content"><strong>Подсказка:</strong> ' + escapeHtml(t.hint) + '</div>' +
+            '</div>';
+    });
+
+    let quizHtml = "";
+    dayObj.quiz.forEach(function(item, qIdx) {
+        const savedAns = dState.answers ? dState.answers[qIdx] : undefined;
+        let optsHtml = item.options.map(function(optText, oIdx) {
+            const checked = savedAns === oIdx ? "checked" : "";
+            return '<label class="option-label">' +
+                '<input type="radio" name="q_' + dayObj.day + '_' + qIdx + '" value="' + oIdx + '" ' + checked + '>' +
+                escapeHtml(optText) +
+            '</label>';
+        }).join("");
+
+        quizHtml += '<div class="quiz-item">' +
+            '<p>' + (qIdx + 1) + '. ' + escapeHtml(item.q) + '</p>' +
+            optsHtml +
+        '</div>';
+    });
+
+    const resultBanner = dState.completed
+        ? '<div style="margin-top:1rem; padding:0.9rem 1.15rem; border-radius:0.55rem; background:rgba(16,185,129,0.14); border:1px solid var(--emerald); color:#a7f3d0;">' +
+            '<strong>Блок подтвержден!</strong> Контрольный тест: ' + dState.score + ' из ' + dayObj.quiz.length + ' баллов. Все 3 практических задания сохранены и отправлены в ведомость.' +
+          '</div>'
+        : "";
+
+    container.innerHTML =
+        '<div class="card theory-section">' +
+            '<h2>' + dayObj.title + '</h2>' +
+            '<div class="analogy-box">' +
+                '<strong>💡 Жизненная аналогия:</strong> ' + dayObj.analogy +
+            '</div>' +
+            dayObj.theoryHtml +
+            '<h4 style="margin-top:1.5rem;">' + dayObj.solidityTitle + '</h4>' +
+            '<pre><code>' + escapeHtml(dayObj.solidityCode) + '</code></pre>' +
+        '</div>' +
+
+        '<div class="card">' +
+            '<h3>&gt;_ Практикум (3 обязательных задания на код, логику и аудит)</h3>' +
+            '<p style="margin-bottom:1.25rem; color:var(--text-muted); font-size:0.92rem;">' +
+                'Выполните все три задания ниже. Ваши решения автоматически прикрепятся к отчету преподавателя при сдаче блока.' +
+            '</p>' +
+            tasksHtml +
+        '</div>' +
+
+        '<div class="card">' +
+            '<h3>&gt;_ Верификация знаний (Контрольные вопросы)</h3>' +
+            '<div style="margin-top:1rem;">' + quizHtml + '</div>' +
+            '<div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1.15rem;">' +
+                '<button class="secondary" onclick="saveDraft(' + dayObj.day + ')">Сохранить черновик</button>' +
+                '<button class="success" onclick="submitDay(' + dayObj.day + ')">Подтвердить блок и отправить День ' + dayObj.day + '</button>' +
+            '</div>' +
+            resultBanner +
+        '</div>';
+}
+
+function collectTaskTexts(dayObj) {
+    const taskTexts = {};
+    const combinedReport = [];
+    let allFilled = true;
+
+    dayObj.tasks.forEach(function(t, idx) {
+        const el = document.getElementById("task_" + dayObj.day + "_" + t.id);
+        const val = el ? el.value.trim() : "";
+        taskTexts[t.id] = val;
+        if (val.length < 10) {
+            allFilled = false;
+        }
+        combinedReport.push("[Задание " + (idx + 1) + ": " + t.title + "]\n" + val);
+    });
+
+    return {
+        taskTexts: taskTexts,
+        allFilled: allFilled,
+        formattedReport: combinedReport.join("\n\n---\n\n")
+    };
+}
+
+function saveDraft(dayNum) {
+    const prof = state.profiles[state.currentId];
+    if (!prof) return;
+    const dayObj = COURSE_DATA.find(function(d) { return d.day === dayNum; });
+    const res = collectTaskTexts(dayObj);
+
+    const existing = prof.days[dayNum] || { answers: {}, completed: false, score: null };
+    prof.days[dayNum] = {
+        answers: existing.answers,
+        completed: existing.completed,
+        score: existing.score,
+        notes: existing.notes,
+        taskTexts: res.taskTexts,
+        updatedAt: new Date().toLocaleString("ru-RU")
+    };
+    saveState();
+    alert("Черновик практических заданий сохранен локально!");
+}
+
+async function submitDay(dayNum) {
+    const prof = state.profiles[state.currentId];
+    if (!prof) return;
+
+    const dayObj = COURSE_DATA.find(function(d) { return d.day === dayNum; });
+    const res = collectTaskTexts(dayObj);
+
+    if (!res.allFilled) {
+        alert("Пожалуйста, развернуто выполните все 3 практических задания (минимум 10 символов в каждом поле) перед сдачей дня.");
+        return;
+    }
+
+    const answers = {};
+    let score = 0;
+
+    for (let i = 0; i < dayObj.quiz.length; i++) {
+        const selected = document.querySelector('input[name="q_' + dayNum + '_' + i + '"]:checked');
+        if (!selected) {
+            alert("Ответьте на контрольный вопрос №" + (i + 1) + " перед сдачей.");
+            return;
+        }
+        const val = parseInt(selected.value, 10);
+        answers[i] = val;
+        if (val === dayObj.quiz[i].correct) score++;
+    }
+
+    prof.days[dayNum] = {
+        answers: answers,
+        taskTexts: res.taskTexts,
+        notes: res.formattedReport,
+        score: score,
+        completed: true,
+        updatedAt: new Date().toLocaleString("ru-RU")
+    };
+
+    saveState();
+    renderAll();
+
+    if (state.webhookUrl) {
+        await sendToGoogleSheet(prof, dayNum, score, dayObj.quiz.length, res.formattedReport);
+    }
+}
+
+async function sendToGoogleSheet(prof, dayNum, score, maxScore, reportText) {
+    const syncBadge = document.getElementById("syncStatus");
+    syncBadge.textContent = "BROADCASTING TX...";
+    try {
+        let totalScore = 0;
+        let completedDays = 0;
+        Object.values(prof.days).forEach(function(d) {
+            if (d.completed) completedDays++;
+            if (typeof d.score === "number") totalScore += d.score;
+        });
+
+        const payload = {
+            timestamp: new Date().toLocaleString("ru-RU"),
+            fio: prof.fio,
+            group: prof.group,
+            day: "День " + dayNum,
+            dayScore: score + "/" + maxScore,
+            totalScore: totalScore,
+            completedDays: completedDays + "/6",
+            notes: reportText
+        };
+
+        await fetch(state.webhookUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        syncBadge.textContent = "TX CONFIRMED // GOOGLE SHEETS";
+        syncBadge.classList.remove("offline");
+    } catch (err) {
+        console.error(err);
+        syncBadge.textContent = "TX FAILED // CHECK URL";
+        syncBadge.classList.add("offline");
+    }
+}
+
+async function syncCurrentNow() {
+    const prof = state.profiles[state.currentId];
+    if (!prof) return;
+    state.webhookUrl = document.getElementById("inputWebhook").value.trim();
+    saveState();
+    if (!state.webhookUrl) {
+        alert("Сначала вставьте ссылку на Google Apps Script.");
+        return;
+    }
+    const dayObj = COURSE_DATA.find(function(d) { return d.day === state.activeDay; });
+    const res = collectTaskTexts(dayObj);
+    const dState = prof.days[state.activeDay] || { score: 0 };
+    await sendToGoogleSheet(prof, state.activeDay, dState.score || 0, dayObj.quiz.length, res.formattedReport || "Ручная синхронизация");
+    alert("Отчет по текущему дню отправлен в Google Таблицу!");
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function renderAll() {
+    renderHeader();
+    renderTabs();
+    renderDay();
+}
+
+loadState();
+renderAll();
+</script>
+</body>
+</html>
