@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Алгоритмы и Solidity: Интенсив (2 курс)</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --border: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --code-bg: #0b1120;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .brand { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+        .brand span { color: var(--primary); }
+        .controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+        select, input, textarea {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: var(--primary-hover); }
+        button.secondary { background: var(--surface-hover); }
+        button.secondary:hover { background: #475569; }
+        button.success { background: var(--accent); color: #064e3b; }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+        
+        .progress-bar-wrap {
+            background: var(--surface);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .progress-track {
+            flex: 1;
+            min-width: 220px;
+            background: var(--bg);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .sync-badge {
+            font-size: 0.85rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 1rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .sync-badge.offline {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .tab-btn {
+            background: var(--surface);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .tab-btn.done::after {
+            content: " ✓";
+            color: var(--accent);
+            font-weight: bold;
+        }
+        .tab-btn.active.done::after { color: #a7f3d0; }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 { margin-bottom: 0.5rem; color: #fff; }
+        .analogy-box {
+            background: rgba(99, 102, 241, 0.12);
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1rem 0;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin: 1.25rem 0;
+        }
+        pre {
+            background: var(--code-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.88rem;
+            border: 1px solid var(--border);
+            color: #e2e8f0;
+            margin: 0.75rem 0;
+        }
+        .quiz-item {
+            background: var(--bg);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .quiz-item p { font-weight: 600; margin-bottom: 0.75rem; }
+        .option-label {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.4rem;
+            cursor: pointer;
+            margin-bottom: 0.4rem;
+            border: 1px solid transparent;
+        }
+        .option-label:hover { background: var(--surface); }
+        .option-label input { margin-right: 0.6rem; }
+
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+            display: none; align-items: center; justify-content: center; z-index: 200;
+            padding: 1rem;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            max-width: 480px;
+            width: 100%;
+            padding: 1.75rem;
+        }
+        .modal h3 { margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--text-muted); }
+        .form-group input, .form-group textarea { width: 100%; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--bg); color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">⛓️ <span>AlgoSolidity</span> // Интенсив 2 курс</div>
+    <div class="controls">
+        <select id="profileSelect" onchange="switchProfile(this.value)"></select>
+        <button class="secondary" onclick="openProfileModal()">+ Новый студент</button>
+        <button class="secondary" onclick="openConfigModal()">⚙️ Google Таблица</button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="progress-bar-wrap">
+        <div>
+            <strong id="studentTitle">Студент не выбран</strong>
+            <div style="font-size: 0.85rem; color: var(--text-muted);" id="studentStats">Пройдено тем: 0 из 6 | Баллов: 0</div>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div id="syncStatus" class="sync-badge offline">Локальный режим</div>
+    </div>
+
+    <div class="tabs" id="dayTabs"></div>
+    <div id="dayContent"></div>
+</div>
+
+<!-- Модальное окно создания профиля -->
+<div class="modal-backdrop" id="profileModal">
+    <div class="modal">
+        <h3>Регистрация профиля студента</h3>
+        <div class="form-group">
+            <label>ФИО студента</label>
+            <input type="text" id="inputFio" placeholder="Например: Иванов Иван Иванович">
+        </div>
+        <div class="form-group">
+            <label>Учебная группа</label>
+            <input type="text" id="inputGroup" placeholder="Например: ИС 25/9-2">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button class="secondary" onclick="closeModal('profileModal')">Отмена</button>
+            <button onclick="createProfile()">Создать профиль</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно настройки Google Apps Script -->
+<div class="modal-backdrop" id="configModal">
+    <div class="modal">
+        <h3>Подключение Google Таблицы</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Вставьте URL веб-приложения Google Apps Script, чтобы результаты тестов автоматически отправлялись в таблицу преподавателя. Вы также можете вшить эту ссылку прямо в код файла (переменная <code>DEFAULT_WEBHOOK_URL</code>).
+        </p>
+        <div class="form-group">
+            <label>URL веб-приложения (Apps Script Web App URL)</label>
+            <input type="url" id="inputWebhook" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <div style="display:flex; justify-content:space-between; gap:0.5rem;">
+            <button class="secondary" onclick="syncCurrentNow()">Отправить отчет сейчас</button>
+            <div style="display:flex; gap:0.5rem;">
+                <button class="secondary" onclick="closeModal('configModal')">Закрыть</button>
+                <button onclick="saveWebhook()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ВСТАВЬТЕ СЮДА ССЫЛКУ НА ВАШ GOOGLE APPS SCRIPT ПЕРЕД ЗАГРУЗКОЙ НА GITHUB:
+const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyxyQ7NOizVHi3u3B-MTob6OE8sB9SmkwXUQNA3UxbGjCO177BG5CHXAnMy_x0d9C_u/exec";
+
+const COURSE_DATA = [
+    {
+        day: 1,
+        title: "День 1. Алгоритмы, линейность и память",
+        analogy: "Рецепт приготовления блюда, инструкция по сборке мебели и банковская ячейка с ярлыком.",
+        theory: `
+            <p><strong>Алгоритм</strong> — это точная последовательность шагов для исполнителя, приводящая от исходных данных к результату за конечное время.</p>
+            <p><strong>Переменная</strong> — это именованная «коробка» в памяти, где лежит значение определенного типа. В отличие от быта, в языке <strong>Solidity</strong> действует строгая типизация: в коробку для чисел нельзя положить текст.</p>
+        `,
+        solidityTitle: "Аналогия в Solidity: Переменные состояния (State Variables)",
+        solidityCode: `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract SafeBox {
+    // Ячейки памяти в блокчейне:
+    uint256 public secretNumber = 42;     // Целое неотрицательное число
+    string public ownerName = "Student";  // Текстовая строка
+    bool public isLocked = true;          // Логический флаг (да/нет)
+    address public owner;                 // Адрес криптокошелька
+}`,
+        practiceTask: "Опишите в заметках ниже линейный алгоритм из 5 шагов для пополнения транспортной карты в терминале (включая проверку ошибки, если купюра помята).",
+        quiz: [
+            {
+                q: "Какое свойство алгоритма означает, что он должен завершиться за определенное число шагов?",
+                options: ["Массовость", "Конечность (результативность)", "Дискретность"],
+                correct: 1
+            },
+            {
+                q: "Какой тип данных в Solidity используется для хранения адреса кошелька?",
+                options: ["string", "uint256", "address"],
+                correct: 2
+            }
+        ]
+    },
+    {
+        day: 2,
+        title: "День 2. Ветвление и логика решений",
+        analogy: "Турникет в метро: если баланс >= стоимости проезда И карта не заблокирована — открыть створки, ИНАЧЕ — включить красный сигнал.",
+        theory: `
+            <p><strong>Ветвление</strong> позволяет алгоритму выбирать путь в зависимости от истинности условия. Для объединения условий используются логические операторы: <code>&&</code> (И), <code>||</code> (ИЛИ), <code>!</code> (НЕ).</p>
+            <p>В смарт-контрактах ветвление критически важно для безопасности: перед переводом денег контракт обязан проверить права вызывающего.</p>
+        `,
+        solidityTitle: "Аналогия в Solidity: if/else и фейсконтроль require()",
+        solidityCode: `function withdraw(uint256 amount, uint256 balance) public pure returns (string memory) {
+    // Жесткий «фейсконтроль»: если условие ложно — транзакция отменяется
+    require(amount > 0, "Сумма должна быть больше нуля");
+
+    if (balance >= amount) {
+        return "Средства выданы";
+    } else {
+        return "Недостаточно средств";
+    }
+}`,
+        practiceTask: "Придумайте и запишите в заметки условие доступа к закрытому клубу, используя минимум два логических оператора (И / ИЛИ).",
+        quiz: [
+            {
+                q: "Что произойдет в Solidity, если условие внутри require(...) окажется ложным (false)?",
+                options: ["Программа пропустит строку и пойдет дальше", "Выполнение прервется, а изменения откатятся", "Переменная обнулится"],
+                correct: 1
+            },
+            {
+                q: "Чему равно выражение (true && false) || true?",
+                options: ["true", "false", "Ошибка компиляции"],
+                correct: 0
+            }
+        ]
+    },
+    {
+        day: 3,
+        title: "День 3. Циклы и цена вычислений (Gas)",
+        analogy: "Чистка картошки из ведра: ПОКА в ведре есть картофелины — берем одну и чистим. Если забыть вынимать картошку из ведра — цикл станет бесконечным.",
+        theory: `
+            <p><strong>Цикл</strong> — многократное повторение одних и тех же действий. Бывают циклы со счетчиком (<code>for</code>) и с предусловием (<code>while</code>).</p>
+            <p>В обычном программировании бесконечный цикл просто подвесит программу. В блокчейне Ethereum за каждую операцию платится комиссия — <strong>Gas (газ)</strong>. Бесконечный или слишком длинный цикл сожжет весь лимит газа и приведет к провалу транзакции.</p>
+        `,
+        solidityTitle: "Аналогия в Solidity: Подсчет суммы с ограничением шагов",
+        solidityCode: `function sumUpTo(uint256 n) public pure returns (uint256) {
+    require(n <= 100, "Слишком много итераций — высокий расход Gas!");
+    uint256 total = 0;
+    for (uint256 i = 1; i <= n; i++) {
+        total += i;
+    }
+    return total;
+}`,
+        practiceTask: "Напишите пошаговый алгоритм поиска самого высокого студента в шеренге без использования сортировки.",
+        quiz: [
+            {
+                q: "Почему в Solidity избегают циклов по массивам неизвестной (огромной) длины?",
+                options: ["В Solidity нет цикла for", "Может закончиться лимит Gas, и функция перестанет работать", "Циклы работают только с текстом"],
+                correct: 1
+            },
+            {
+                q: "Сколько раз выполнится цикл: for (uint i = 0; i < 5; i++)?",
+                options: ["4 раза", "5 раз", "6 раз"],
+                correct: 1
+            }
+        ]
+    },
+    {
+        day: 4,
+        title: "День 4. Массивы и словари (Mapping)",
+        analogy: "Очередь в поликлинике (массив — важен порядковый номер с 0) против гардероба с номерками (словарь — по уникальному ключу сразу находим вещь).",
+        theory: `
+            <p><strong>Массив</strong> хранит элементы по порядку: 0-й, 1-й, 2-й. Чтобы найти в нем конкретного человека, нужно обойти всю очередь.</p>
+            <p><strong>Словарь (хеш-таблица)</strong> связывает «Ключ → Значение». В Solidity эта структура называется <code>mapping</code> — она позволяет мгновенно узнать баланс любого кошелька без перебора.</p>
+        `,
+        solidityTitle: "Аналогия в Solidity: Массив участников и mapping балансов",
+        solidityCode: `contract BankLedger {
+    address[] public clients; // Список всех клиентов по порядку (0, 1, 2...)
+    mapping(address => uint256) public balances; // Гардероб: Адрес -> Баланс
+
+    function deposit(uint256 amount) public {
+        balances[msg.sender] += amount; // Мгновенный доступ по ключу msg.sender
+    }
+}`,
+        practiceTask: "Объясните в заметках: какую структуру (массив или mapping) лучше выбрать для хранения оценок 10 000 студентов по номеру их зачетки и почему?",
+        quiz: [
+            {
+                q: "С какого индекса начинается нумерация элементов в массивах Solidity?",
+                options: ["С 1", "С 0", "С -1"],
+                correct: 1
+            },
+            {
+                q: "Какая структура в Solidity идеальна для связки «Адрес кошелька -> Количество токенов»?",
+                options: ["mapping(address => uint256)", "string[]", "bool"],
+                correct: 0
+            }
+        ]
+    },
+    {
+        day: 5,
+        title: "День 5. Функции и декомпозиция",
+        analogy: "Кофемашина: пользователь нажимает кнопку «Латте» (вход), получает стаканчик (выход), а внутренний нагрев бойлера скрыт от него.",
+        theory: `
+            <p><strong>Декомпозиция</strong> — разбиение сложной задачи на независимые блоки-функции. Функция принимает параметры, обрабатывает их и возвращает результат.</p>
+            <p>В Solidity функции имеют модификаторы видимости (<code>public</code> — кнопка для всех, <code>private</code> — скрытый механизм внутри контракта) и модификаторы чтения (<code>view</code> — только посмотреть, газ не тратится).</p>
+        `,
+        solidityTitle: "Аналогия в Solidity: Публичные и внутренние функции",
+        solidityCode: `contract CoffeeMachine {
+    uint256 private waterLevel = 100;
+
+    // Публичная кнопка для клиента
+    function makeCoffee() public returns (string memory) {
+        _boilWater();
+        return "Ваш кофе готов!";
+    }
+
+    // Скрытый внутренний метод (нельзя вызвать снаружи)
+    function _boilWater() private {
+        require(waterLevel >= 10, "Нет воды");
+        waterLevel -= 10;
+    }
+}`,
+        practiceTask: "Разбейте процесс «Заказ еды в приложении» на 4 отдельные функции, указав для каждой входные данные и результат.",
+        quiz: [
+            {
+                q: "Какой модификатор функции в Solidity запрещает вызывать её пользователям снаружи контракта?",
+                options: ["public", "private", "view"],
+                correct: 1
+            },
+            {
+                q: "Как называется прием разбиения сложной программы на мелкие логические функции?",
+                options: ["Компиляция", "Декомпозиция", "Итерация"],
+                correct: 1
+            }
+        ]
+    },
+    {
+        day: 6,
+        title: "День 6. Итоговый практикум: Контракт «Копилка»",
+        analogy: "Сборка единого механизма из шестеренок: переменные + ветвление + mapping + функции.",
+        theory: `
+            <p>На финальном этапе мы объединяем все изученные конструкции в единый алгоритм работы смарт-контракта:</p>
+            <ol style="margin-left:1.5rem; margin-top:0.5rem;">
+                <li>Храним цель сбора и вклад каждого участника (<code>mapping</code>).</li>
+                <li>При пополнении проверяем, что сумма больше нуля (<code>require</code>).</li>
+                <li>При снятии проверяем, что цель достигнута и вызывает владелец (<code>if / require</code>).</li>
+            </ol>
+        `,
+        solidityTitle: "Итоговый шаблон смарт-контракта для разбора",
+        solidityCode: `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract GoalPiggyBank {
+    address public owner;
+    uint256 public goal;
+    mapping(address => uint256) public contributions;
+
+    constructor(uint256 _goal) {
+        owner = msg.sender;
+        goal = _goal;
+    }
+
+    function contribute() public payable {
+        require(msg.value > 0, "Нужно отправить ETH");
+        contributions[msg.sender] += msg.value;
+    }
+
+    function isGoalReached() public view returns (bool) {
+        return address(this).balance >= goal;
+    }
+}`,
+        practiceTask: "Найдите в коде выше, что произойдет, если любой посторонний человек вызовет функцию isGoalReached(), и запишите ваш разбор работы контракта в отчет.",
+        quiz: [
+            {
+                q: "Когда выполняется функция constructor(...) в смарт-контракте?",
+                options: ["При каждом переводе средств", "Один раз при загрузке (деплое) контракта в сеть", "Каждый день в 00:00"],
+                correct: 1
+            },
+            {
+                q: "Какая переменная в Solidity автоматически содержит адрес того, кто вызвал функцию?",
+                options: ["msg.sender", "tx.gas", "block.number"],
+                correct: 0
+            }
+        ]
+    }
+];
+
+let state = {
+    profiles: {},
+    currentId: null,
+    activeDay: 1,
+    webhookUrl: DEFAULT_WEBHOOK_URL
+};
+
+function loadState() {
+    const saved = localStorage.getItem("algo_solidity_state_v1");
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            state = { ...state, ...parsed };
+            if (!state.webhookUrl && DEFAULT_WEBHOOK_URL) {
+                state.webhookUrl = DEFAULT_WEBHOOK_URL;
+            }
+        } catch (e) { console.error(e); }
+    }
+    if (!state.currentId || !state.profiles[state.currentId]) {
+        const ids = Object.keys(state.profiles);
+        if (ids.length > 0) {
+            state.currentId = ids[0];
+        } else {
+            openProfileModal();
+        }
+    }
+}
+
+function saveState() {
+    localStorage.setItem("algo_solidity_state_v1", JSON.stringify(state));
+}
+
+function createProfile() {
+    const fio = document.getElementById("inputFio").value.trim();
+    const group = document.getElementById("inputGroup").value.trim();
+    if (!fio || !group) {
+        alert("Пожалуйста, введите ФИО и группу.");
+        return;
+    }
+    const id = "st_" + Date.now();
+    state.profiles[id] = {
+        id,
+        fio,
+        group,
+        days: {}
+    };
+    state.currentId = id;
+    saveState();
+    closeModal("profileModal");
+    document.getElementById("inputFio").value = "";
+    document.getElementById("inputGroup").value = "";
+    renderAll();
+}
+
+function switchProfile(id) {
+    state.currentId = id;
+    saveState();
+    renderAll();
+}
+
+function openProfileModal() {
+    document.getElementById("profileModal").classList.add("open");
+}
+
+function openConfigModal() {
+    document.getElementById("inputWebhook").value = state.webhookUrl || "";
+    document.getElementById("configModal").classList.add("open");
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove("open");
+}
+
+function saveWebhook() {
+    state.webhookUrl = document.getElementById("inputWebhook").value.trim();
+    saveState();
+    closeModal("configModal");
+    renderHeader();
+}
+
+function renderHeader() {
+    const select = document.getElementById("profileSelect");
+    select.innerHTML = "";
+    Object.values(state.profiles).forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.fio} (${p.group})`;
+        if (p.id === state.currentId) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    const syncBadge = document.getElementById("syncStatus");
+    if (state.webhookUrl) {
+        syncBadge.textContent = "Google Таблица подключена";
+        syncBadge.classList.remove("offline");
+    } else {
+        syncBadge.textContent = "Локальный режим (без таблицы)";
+        syncBadge.classList.add("offline");
+    }
+
+    const prof = state.profiles[state.currentId];
+    if (!prof) return;
+
+    let completedCount = 0;
+    let totalScore = 0;
+    let maxScore = 0;
+    COURSE_DATA.forEach(d => {
+        maxScore += d.quiz.length;
+        const dState = prof.days[d.day];
+        if (dState && dState.completed) completedCount++;
+        if (dState && typeof dState.score === "number") totalScore += dState.score;
+    });
+
+    document.getElementById("studentTitle").textContent = `${prof.fio} — группа ${prof.group}`;
+    document.getElementById("studentStats").textContent = `Пройдено дней: ${completedCount} из ${COURSE_DATA.length} | Баллов за тесты: ${totalScore} из ${maxScore}`;
+    document.getElementById("progressFill").style.width = `${Math.round((completedCount / COURSE_DATA.length) * 100)}%`;
+}
+
+function renderTabs() {
+    const tabsEl = document.getElementById("dayTabs");
+    tabsEl.innerHTML = "";
+    const prof = state.profiles[state.currentId];
+    COURSE_DATA.forEach(d => {
+        const btn = document.createElement("button");
+        const isDone = prof && prof.days[d.day] && prof.days[d.day].completed;
+        btn.className = `tab-btn ${state.activeDay === d.day ? "active" : ""} ${isDone ? "done" : ""}`;
+        btn.textContent = `День ${d.day}`;
+        btn.onclick = () => {
+            state.activeDay = d.day;
+            saveState();
+            renderTabs();
+            renderDay();
+        };
+        tabsEl.appendChild(btn);
+    });
+}
+
+function renderDay() {
+    const container = document.getElementById("dayContent");
+    const prof = state.profiles[state.currentId];
+    if (!prof) {
+        container.innerHTML = `<div class="card"><p>Нажмите «+ Новый студент» вверху, чтобы начать обучение.</p></div>`;
+        return;
+    }
+
+    const dayObj = COURSE_DATA.find(d => d.day === state.activeDay);
+    const dState = prof.days[dayObj.day] || { answers: {}, notes: "", completed: false, score: null };
+
+    let quizHtml = "";
+    dayObj.quiz.forEach((item, qIdx) => {
+        const savedAns = dState.answers ? dState.answers[qIdx] : undefined;
+        let optsHtml = item.options.map((optText, oIdx) => {
+            const checked = savedAns === oIdx ? "checked" : "";
+            return `<label class="option-label">
+                <input type="radio" name="q_${dayObj.day}_${qIdx}" value="${oIdx}" ${checked}>
+                ${optText}
+            </label>`;
+        }).join("");
+
+        quizHtml += `<div class="quiz-item">
+            <p>${qIdx + 1}. ${item.q}</p>
+            ${optsHtml}
+        </div>`;
+    });
+
+    const resultBanner = typeof dState.score === "number"
+        ? `<div style="margin-top:1rem; padding:0.75rem 1rem; border-radius:0.5rem; background:rgba(16,185,129,0.15); border:1px solid var(--accent);">
+            <strong>Результат теста:</strong> ${dState.score} из ${dayObj.quiz.length} баллов. ${dState.completed ? "День засчитан!" : ""}
+           </div>`
+        : "";
+
+    container.innerHTML = `
+        <div class="card">
+            <h2>${dayObj.title}</h2>
+            <div class="analogy-box">
+                <strong>💡 Жизненная аналогия:</strong> ${dayObj.analogy}
+            </div>
+            <div class="grid-2">
+                <div>
+                    <h3 style="margin-bottom:0.5rem;">Теория алгоритмов</h3>
+                    ${dayObj.theory}
+                </div>
+                <div>
+                    <h3 style="margin-bottom:0.5rem;">${dayObj.solidityTitle}</h3>
+                    <pre>${escapeHtml(dayObj.solidityCode)}</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🛠️ Практическое задание и конспект</h3>
+            <p style="margin:0.5rem 0 1rem; color:var(--text-muted);">${dayObj.practiceTask}</p>
+            <textarea id="dayNotes" rows="4" style="width:100%;" placeholder="Запишите сюда ваш алгоритм, решение или заметки по теме...">${escapeHtml(dState.notes || "")}</textarea>
+        </div>
+
+        <div class="card">
+            <h3>✅ Проверка понимания (Мини-тест)</h3>
+            <div style="margin-top:1rem;">${quizHtml}</div>
+            <button class="success" onclick="submitDay(${dayObj.day})">Сохранить ответ и завершить День ${dayObj.day}</button>
+            ${resultBanner}
+        </div>
+    `;
+}
+
+async function submitDay(dayNum) {
+    const prof = state.profiles[state.currentId];
+    if (!prof) return;
+
+    const dayObj = COURSE_DATA.find(d => d.day === dayNum);
+    const notes = document.getElementById("dayNotes").value.trim();
+    const answers = {};
+    let score = 0;
+
+    for (let i = 0; i < dayObj.quiz.length; i++) {
+        const selected = document.querySelector(`input[name="q_${dayNum}_${i}"]:checked`);
+        if (!selected) {
+            alert(`Ответьте на вопрос №${i + 1} перед сохранением.`);
+            return;
+        }
+        const val = parseInt(selected.value, 10);
+        answers[i] = val;
+        if (val === dayObj.quiz[i].correct) score++;
+    }
+
+    prof.days[dayNum] = {
+        answers,
+        notes,
+        score,
+        completed: true,
+        updatedAt: new Date().toLocaleString("ru-RU")
+    };
+
+    saveState();
+    renderAll();
+
+    if (state.webhookUrl) {
+        await sendToGoogleSheet(prof, dayNum, score, dayObj.quiz.length, notes);
+    }
+}
+
+async function sendToGoogleSheet(prof, dayNum, score, maxScore, notes) {
+    const syncBadge = document.getElementById("syncStatus");
+    syncBadge.textContent = "Отправка в таблицу...";
+    try {
+        let totalScore = 0;
+        let completedDays = 0;
+        Object.values(prof.days).forEach(d => {
+            if (d.completed) completedDays++;
+            if (typeof d.score === "number") totalScore += d.score;
+        });
+
+        const payload = {
+            timestamp: new Date().toLocaleString("ru-RU"),
+            fio: prof.fio,
+            group: prof.group,
+            day: `День ${dayNum}`,
+            dayScore: `${score}/${maxScore}`,
+            totalScore: totalScore,
+            completedDays: `${completedDays}/6`,
+            notes: notes
+        };
+
+        await fetch(state.webhookUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        syncBadge.textContent = "Отправлено в Google Таблицу ✓";
+        syncBadge.classList.remove("offline");
+    } catch (err) {
+        console.error(err);
+        syncBadge.textContent = "Ошибка отправки (проверьте URL)";
+        syncBadge.classList.add("offline");
+    }
+}
+
+async function syncCurrentNow() {
+    const prof = state.profiles[state.currentId];
+    if (!prof) return;
+    state.webhookUrl = document.getElementById("inputWebhook").value.trim();
+    saveState();
+    if (!state.webhookUrl) {
+        alert("Сначала вставьте ссылку на Google Apps Script.");
+        return;
+    }
+    const dState = prof.days[state.activeDay] || { score: 0, notes: "" };
+    const dayObj = COURSE_DATA.find(d => d.day === state.activeDay);
+    await sendToGoogleSheet(prof, state.activeDay, dState.score || 0, dayObj.quiz.length, dState.notes || "Ручная синхронизация");
+    alert("Запрос на синхронизацию отправлен!");
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function renderAll() {
+    renderHeader();
+    renderTabs();
+    renderDay();
+}
+
+loadState();
+renderAll();
+</script>
+</body>
+</html>
